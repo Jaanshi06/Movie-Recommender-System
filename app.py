@@ -4,14 +4,20 @@ import pandas as pd
 import requests
 
 def fetch_poster(movie_id):
-    response = requests.get(
-        'https://api.themoviedb.org/3/movie/{}?api_key=9035960329ec86a7b12b5714b2328c32&language=en-US'.format(
-            movie_id))
-    data = response.json()
-    if 'poster_path' in data and data['poster_path']:
-        return "https://image.tmdb.org/t/p/w500/" + data['poster_path']
-    else:
-        return "https://via.placeholder.com/500x750?text=No+Image"
+    try:
+        url = f'https://api.themoviedb.org/3/movie/{movie_id}?api_key=9035960329ec86a7b12b5714b2328c32&language=en-US'
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+
+        if 'poster_path' in data and data['poster_path']:
+            return "https://image.tmdb.org/t/p/w500/" + data['poster_path']
+        else:
+            return "https://via.placeholder.com/500x750?text=No+Image"
+    except requests.exceptions.RequestException as e:
+        print(f"⚠️ TMDB API error for movie ID {movie_id}: {e}")
+        return "https://via.placeholder.com/500x750?text=Error+Fetching+Image"
+
 
 def recommend(movie):
     movie_index = movies[movies['title'] == movie].index[0]
@@ -148,7 +154,7 @@ if st.button('Recommend'):
     cols = st.columns(5)
     for idx, col in enumerate(cols):
         with col:
-            st.image(posters[idx], use_container_width=True)
+            st.image(posters[idx], width=None)
             st.markdown(
                 f"<p style='text-align: center; font-size: 15px; margin-top: 8px;'>{names[idx]}</p>",
                 unsafe_allow_html=True
