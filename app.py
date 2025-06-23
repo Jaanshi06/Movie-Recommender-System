@@ -2,7 +2,6 @@ import streamlit as st
 import pickle
 import pandas as pd
 import requests
-import urllib.request
 
 def fetch_poster(movie_id):
     response = requests.get(
@@ -28,15 +27,7 @@ def recommend(movie):
     return recommended_movies, recommended_movies_posters
 
 
-# URLs from Azure Blob Storage
-movies_dict_url = "https://mlworkspace013094795077.blob.core.windows.net/models/movies_dict.pkl"
-similarity_url = "https://mlworkspace013094795077.blob.core.windows.net/models/similarity.pkl"
-
-# Download the files locally first (only once during runtime)
-urllib.request.urlretrieve(movies_dict_url, "movies_dict.pkl")
-urllib.request.urlretrieve(similarity_url, "similarity.pkl")
-
-# Then load them as usual
+# Then load them
 movies_dict = pickle.load(open('movies_dict.pkl', 'rb'))
 movies = pd.DataFrame(movies_dict)
 similarity = pickle.load(open('similarity.pkl', 'rb'))
